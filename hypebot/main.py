@@ -1,4 +1,5 @@
 import socket
+import time
 
 import twitter
 
@@ -34,6 +35,15 @@ def main():
     last_split_index = -1
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((settings.LIVESPLIT_HOST, settings.LIVESPLIT_PORT))
+    while True:
+        try:
+            last_split_index = update(s, twitter, last_split_index)
+        except socket.error as e:
+            if e.errno == errno.ECONNRESET:
+                print("Socket connection reset, attempting to reconnect")
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((settings.LIVESPLIT_HOST, settings.LIVESPLIT_PORT))
+        time.sleep(1)
 
 
 if __name__ == "__main__":
