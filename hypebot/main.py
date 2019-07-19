@@ -2,7 +2,7 @@ import socket
 
 import twitter
 
-import settings
+from hypebot import settings
 
 
 def create_twitter_api():
@@ -34,8 +34,6 @@ def main():
     last_split_index = -1
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((settings.LIVESPLIT_HOST, settings.LIVESPLIT_PORT))
-    while True:
-        last_split_index = update(s, twitter, last_split_index)
 
 
 if __name__ == "__main__":
