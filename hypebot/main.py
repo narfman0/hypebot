@@ -2,6 +2,7 @@ import socket
 import time
 
 import twitter
+from pytimeparse import parse as parse_time
 
 from hypebot import log, settings
 
@@ -29,7 +30,9 @@ def update(s, twitter, last_split_index):
         # odd unicode prepended here: \xe2\x88\x923, appended \r\n
         delta = s.recv(1024)[3:].decode("utf-8").strip()
         logger.info(f"Split delta: {delta}")
-        twitter.PostUpdate(f"narfman0 test delta {delta}")
+        delta = parse_time(delta)
+        if delta < 0:
+            twitter.PostUpdate(f"narfman0 on p.b. pace with delta {delta}")
     return current_split_index
 
 

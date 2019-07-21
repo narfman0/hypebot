@@ -21,6 +21,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
-    install_requires=["python-twitter"],
+    install_requires=["python-twitter", "pytimeparse"],
     test_suite="tests",
 )
