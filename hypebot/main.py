@@ -1,10 +1,10 @@
+import errno
 import socket
 import time
 
 import twitter
-from pytimeparse import parse as parse_time
 
-from hypebot import log, settings
+from hypebot import log, net, settings
 
 
 LOGGER = log.create_logger(__name__)
@@ -19,19 +19,19 @@ def create_twitter_api():
     )
 
 
-def update(s, twitter, last_split_index):
+def update(livesplit_client, twitter, last_split_index):
     """ Update loop. Returns current world index. """
-    s.send(b"getsplitindex\r\n")
-    current_split_index = int(s.recv(1024))
+    livesplit_client.send("getsplitindex")
+    current_split_index = int(livesplit_client.recv())
     if last_split_index != current_split_index:
-        logger.info(f"Split index changed to {current_split_index}")
+        LOGGER.info("Split index changed to %d", current_split_index)
     if last_split_index == 6 and current_split_index == 7:
-        s.send(b"getdelta\r\n")
+        livesplit_client.send("getdelta")
         # odd unicode prepended here: \xe2\x88\x923, appended \r\n
-        delta = s.recv(1024)[3:].decode("utf-8").strip()
-        logger.info(f"Split delta: {delta}")
-        delta = parse_time(delta)
-        if delta < 0:
+        delta = livesplit_client.recv()[3:]
+        pb_pace = "-" in delta
+        LOGGER.info("Split delta: %s", delta)
+        if pb_pace:
             twitter.PostUpdate(f"narfman0 on p.b. pace with delta {delta}")
     return current_split_index
 
@@ -39,16 +39,14 @@ def update(s, twitter, last_split_index):
 def main():
     twitter = create_twitter_api()
     last_split_index = -1
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((settings.LIVESPLIT_HOST, settings.LIVESPLIT_PORT))
+    livesplit_client = net.LiveSplitClient()
     while True:
         try:
-            last_split_index = update(s, twitter, last_split_index)
+            last_split_index = update(livesplit_client, twitter, last_split_index)
         except socket.error as e:
             if e.errno == errno.ECONNRESET:
-                logger.info("Socket connection reset, attempting to reconnect")
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((settings.LIVESPLIT_HOST, settings.LIVESPLIT_PORT))
+                LOGGER.info("Socket connection reset, attempting to reconnect")
+                livesplit_client.connect()
         time.sleep(1)
 
 
