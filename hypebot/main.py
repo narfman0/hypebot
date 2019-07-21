@@ -3,7 +3,10 @@ import time
 
 import twitter
 
-from hypebot import settings
+from hypebot import log, settings
+
+
+LOGGER = log.create_logger(__name__)
 
 
 def create_twitter_api():
@@ -20,12 +23,12 @@ def update(s, twitter, last_split_index):
     s.send(b"getsplitindex\r\n")
     current_split_index = int(s.recv(1024))
     if last_split_index != current_split_index:
-        print(f"Split index changed to {current_split_index}")
+        logger.info(f"Split index changed to {current_split_index}")
     if last_split_index == 6 and current_split_index == 7:
         s.send(b"getdelta\r\n")
         # odd unicode prepended here: \xe2\x88\x923, appended \r\n
         delta = s.recv(1024)[3:].decode("utf-8").strip()
-        print(f"Split delta: {delta}")
+        logger.info(f"Split delta: {delta}")
         twitter.PostUpdate(f"narfman0 test delta {delta}")
     return current_split_index
 
@@ -40,7 +43,7 @@ def main():
             last_split_index = update(s, twitter, last_split_index)
         except socket.error as e:
             if e.errno == errno.ECONNRESET:
-                print("Socket connection reset, attempting to reconnect")
+                logger.info("Socket connection reset, attempting to reconnect")
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect((settings.LIVESPLIT_HOST, settings.LIVESPLIT_PORT))
         time.sleep(1)
