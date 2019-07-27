@@ -23,4 +23,9 @@ setup(
     zip_safe=True,
     install_requires=["python-twitter"],
     test_suite="tests",
+    entry_points={
+        'console_scripts': [
+            'hypebot = hypebot.main:main'
+        ],
+    },
 )
