@@ -72,11 +72,10 @@ run::
 TODO
 ====
 
-* markovify. the real irony would be if we ingest the corpus from your twitter
-account itself. i might do it just for mad inception points.
+* markovify. the real irony would be if we ingest the corpus from your twitter account itself. i might do it just for mad inception points.
 
-Note: for now we just pass in username and split index to watch for. We may
-extend in the future.
+Note: for now we just pass in username and split index to watch for. We reserve
+the right to extend this functionality in the future.
 
 License
 -------
