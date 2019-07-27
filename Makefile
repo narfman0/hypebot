@@ -18,6 +18,9 @@ init:
 init-dev:
 	pipenv install -d
 
+run-app:
+	pipenv run python -m hypebot.main
+
 run-test:
 	pipenv run pytest --flake8 --black --cov=hypebot --cov-report term-missing tests/
 
@@ -29,5 +32,7 @@ release-prod: clean
 	pipenv run python setup.py sdist bdist_wheel
 	pipenv run twine upload --repository pypi dist/*
 
+r: run-app
+run: init run-app
 t: run-test
 test: init-dev t

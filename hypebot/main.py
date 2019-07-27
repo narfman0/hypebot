@@ -21,15 +21,12 @@ def create_twitter_api():
 
 def update(livesplit_client, twitter, last_split_index):
     """ Update loop. Returns current world index. """
-    livesplit_client.send("getsplitindex")
-    current_split_index = int(livesplit_client.recv())
+    current_split_index = int(livesplit_client.post("getsplitindex"))
     if last_split_index != current_split_index:
         LOGGER.info("Split index changed to %d", current_split_index)
     if last_split_index == 6 and current_split_index == 7:
-        livesplit_client.send("getdelta")
-        # odd unicode prepended here: \xe2\x88\x923, appended \r\n
-        delta = livesplit_client.recv()[3:]
-        pb_pace = "-" in delta
+        delta = livesplit_client.post("getdelta")
+        pb_pace = "−" in delta
         LOGGER.info("Split delta: %s", delta)
         if pb_pace:
             twitter.PostUpdate(f"narfman0 on p.b. pace with delta {delta}")
@@ -40,6 +37,7 @@ def main():
     twitter = create_twitter_api()
     last_split_index = -1
     livesplit_client = net.LiveSplitClient()
+    LOGGER.info("Connected and ready for updates...")
     while True:
         try:
             last_split_index = update(livesplit_client, twitter, last_split_index)
