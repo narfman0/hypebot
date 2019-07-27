@@ -19,7 +19,7 @@ init-dev:
 	pipenv install -d
 
 run-app:
-	pipenv run python -m hypebot.main
+	pipenv run python -m hypebot.main narfman0 7
 
 run-test:
 	pipenv run pytest --flake8 --black --cov=hypebot --cov-report term-missing tests/
